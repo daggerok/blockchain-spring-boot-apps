@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                            https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.9.xsd">
+
+    <property name="current.timestamp.function" dbms="h2" value="NOW()"/>
+    <property name="instant.type" dbms="h2" value="DATETIME(6)"/>
+    <property name="decimal.type" dbms="h2" value="DECIMAL(19,8)"/>
+    <property name="text.type" dbms="h2" value="CLOB"/>
+    <property name="id.type" dbms="h2" value="BIGINT"/>
+
+    <changeSet id="V202209231011" author="Maksim Kostromin">
+        <comment>Liquibase Hello, World test with rollback</comment>
+
+        <createTable tableName="hello">
+            <column name="world" type="${text.type}"/>
+            <column name="timestamp" type="${instant.type}" defaultValueComputed="${current.timestamp.function}"/>
+            <column autoIncrement="true" name="id" type="${id.type}">
+                <constraints primaryKey="true" primaryKeyName="hello_world_pk"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="hello"
+                     indexName="hello_world_timestamp_idx">
+            <column name="timestamp"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="hello"
+                       indexName="hello_world_timestamp_idx"/>
+
+            <dropTable tableName="hello"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

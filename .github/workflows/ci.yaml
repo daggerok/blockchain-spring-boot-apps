@@ -1,0 +1,33 @@
+name: CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      trigger:
+        description: Type m to trigger manual jobs
+        required: false
+        default: ''
+env:
+  JAVA_VERSION: '17'
+jobs:
+  tests:
+    if: github.event.inputs.trigger == ''
+      || !startsWith(github.event.inputs.trigger, 'm')
+      || !startsWith(github.event.inputs.trigger, 'M')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/cache@v3
+        id: java-cache
+        with:
+          path: |
+            ./build
+            ~/.m2/repository
+            !~/.m2/repository/io/gituhb/daggerok
+          key: ${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+      - uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: ${{ env.JAVA_VERSION }}
+      - run: cd $GITHUB_WORKSPACE ; ./mvnw clean ; ./mvnw -U
