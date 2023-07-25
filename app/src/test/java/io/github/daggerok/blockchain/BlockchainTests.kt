@@ -11,33 +11,38 @@ import org.springframework.data.relational.core.mapping.Table
 import reactor.kotlin.test.test
 import java.time.Instant
 
-@Table("hello")
-data class Hello(
-    val world: String = "",
+@Table("blockchain")
+data class Block(
+    val previousHash: String = "",
     val timestamp: Instant? = null,
+    val hash: String = "",
     @Id val id: Long? = null
 )
 
-interface HelloRepository : R2dbcRepository<Hello, Long>
+interface BlockRepository : R2dbcRepository<Block, Long>
 
 @SpringBootTest
-class HelloWorldTests(@Autowired val helloRepository: HelloRepository) {
+class BlockTests(@Autowired val blockRepository: BlockRepository) {
 
     @BeforeEach
     fun `before each`() {
-        helloRepository.deleteAll().subscribe()
+        blockRepository.deleteAll().subscribe()
     }
 
     @Test
-    fun `should test hello world with r2dbc and liquibase`() {
+    fun `should test block with r2dbc and liquibase`() {
         // given
-        helloRepository.save(Hello(world = "Hello, World!"))
+        val previousHash = "Hello, World!"
+            .chars().mapToObj { String.format("%02x", it) }
+            .toArray().joinToString(separator = "")
+        // and
+        blockRepository.save(Block(previousHash = previousHash))
             .test()
             .expectNextCount(1)
             .verifyComplete()
 
         // when
-        helloRepository.findAll()
+        blockRepository.findAll()
             .test()
             // then
             .consumeNextWith(logger()::info)

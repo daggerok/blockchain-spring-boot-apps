@@ -31,7 +31,32 @@
             <dropIndex tableName="hello"
                        indexName="hello_world_timestamp_idx"/>
 
-            <dropTable tableName="hello"/>
+            <dropTable tableName="hello" cascadeConstraints="true"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="V202307251715" author="Maksim Kostromin">
+        <comment>Liquibase Blockchain test with rollback</comment>
+
+        <createTable tableName="blockchain">
+            <column name="previous_hash" type="${text.type}"/>
+            <column name="timestamp" type="${instant.type}" defaultValueComputed="${current.timestamp.function}"/>
+            <column name="hash" type="${text.type}"/>
+            <column autoIncrement="true" name="id" type="${id.type}">
+                <constraints primaryKey="true" primaryKeyName="blockchain_pk"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="blockchain"
+                     indexName="blockchain_timestamp_idx">
+            <column name="timestamp"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="blockchain"
+                       indexName="blockchain_timestamp_idx"/>
+
+            <dropTable tableName="blockchain" cascadeConstraints="true"/>
         </rollback>
     </changeSet>
 
